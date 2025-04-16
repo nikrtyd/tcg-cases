@@ -1,0 +1,61 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  balance   Int      @default(0)
+  role      String   @default("user")
+  inventory Drop[]
+}
+
+model Card {
+  id           String   @id @default(cuid())
+  name         String
+  rarity       String
+  price        Int
+  imageUrl     String
+  collectionId String?
+  Collection   Collection? @relation(fields: [collectionId], references: [id])
+  drops        Drop[]
+  cases        Case[] @relation("CardsInCase")
+}
+
+model Case {
+  id        String  @id @default(cuid())
+  name      String
+  price     Int
+  imageUrl  String?
+  cards     Card[] @relation("CardsInCase")
+}
+
+model Drop {
+  id        String   @id @default(cuid())
+  userId    String
+  cardId    String
+  timestamp DateTime @default(now())
+  User      User     @relation(fields: [userId], references: [id])
+  Card      Card     @relation(fields: [cardId], references: [id])
+}
+
+model Collection {
+  id    String @id @default(cuid())
+  name  String
+  cards Card[]
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  icon        String
+  condition   String
+  reward      Int?
+}
